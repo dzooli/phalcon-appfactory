@@ -1,0 +1,21 @@
+{
+    "name": "dzooli/phalcon-appfactory",
+    "description": "Skeleton application for Phalcon4 CLI and micro applications",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Zoltan Fabian",
+            "email": "zoltan.dzooli.fabian@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "ext-phalcon": "^4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dzooli\\": "src"
+        }
+    }
+}

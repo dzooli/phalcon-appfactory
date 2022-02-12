@@ -2,54 +2,119 @@
 
 namespace Dzooli\Phalcon\Core;
 
+use Phalcon\Config;
+use Phalcon\Di\Di;
+use Phalcon\Loader;
+use Phalcon\Di\FactoryDefault;
+use Phalcon\Mvc\View\Simple as View;
+use Phalcon\Url as UrlResolver;
+
 abstract class AbstractAppFactory
 {
-    abstract protected function initDi();
-    abstract protected function initServices();
+    protected ?string $appPath = null;
+    protected $di = null;
+    protected ?Config $appConfig = null;
+    protected $loader = null;
+    protected $app = null;
 
-    protected function initDefaultCliDi()
+    public function getConfig(): Config
     {
-        /**
-         * TODO: implementation
-         */
+        return $this->appConfig;
     }
 
-    protected function initDefaultMicroDi()
+    public function getDi(): Di
     {
-        /**
-         * TODO: implementation
-         *
-         * @return void
-         */
+        return $this->di;
     }
 
-    protected function initDefaultCliServices()
+    public function getPath()
     {
-        /**
-         * TODO: implementation
-         */
+        return $this->appPath;
     }
 
-    protected function initDefaultMicroServices()
+    public function getLoader()
     {
-        /**
-         * TODO: implementation
-         *
-         * @return void
-         */
+        return $this->loader;
     }
 
-    public static function createMicro()
+    public function getApp()
     {
-        /** 
-         * TODO: implementation
-         */
+        return $this->app;
     }
 
-    public static function createCli()
+    public function initDefaults()
     {
-        /**
-         * TODO: implementation
-         */
+        $this->initDi();
+        $this->initBaseServices();
+        $this->initConfig();
+        $this->initLoader();
+    }
+
+    protected function initConfig(): void
+    {
+        $this->appConfig = $this->di->getShared('config');
+    }
+    protected function initBaseServices(): void
+    {
+        $factory = $this;
+        $this->di->setShared('config', function () use ($factory) {
+            return require $factory->appPath . "/config/config.php";
+        });
+
+        $this->di->setShared('view', function () {
+            $config = $this->getConfig();
+
+            $view = new View();
+            $view->setViewsDir($config->application->viewsDir);
+            return $view;
+        });
+
+        $this->di->setShared('url', function () {
+            $config = $this->getConfig();
+
+            $url = new UrlResolver();
+            $url->setBaseUri($config->application->baseUri);
+            return $url;
+        });
+
+        $this->di->setShared('db', function () {
+            $config = $this->getConfig();
+
+            $class = 'Phalcon\Db\Adapter\Pdo\\' . $config->database->adapter;
+            $params = [
+                'host'     => $config->database->host,
+                'username' => $config->database->username,
+                'password' => $config->database->password,
+                'dbname'   => $config->database->dbname,
+                'charset'  => $config->database->charset
+            ];
+
+            if ($config->database->adapter == 'Postgresql') {
+                unset($params['charset']);
+            }
+
+            $connection = new $class($params);
+
+            return $connection;
+        });
+    }
+
+    protected function initDi(): void
+    {
+        $this->di = new FactoryDefault();
+    }
+
+    protected function initLoader(): void
+    {
+        $this->loader = new Loader();
+
+        $this->loader->registerDirs(
+            [
+                $this->appConfig->application->modelsDir,
+                $this->appConfig->application->controllersDir,
+                $this->appConfig->application->viewsDir,
+                $this->appConfig->application->libDir,
+            ]
+        )->register();
     }
 }

@@ -7,7 +7,8 @@ Application skeleton for Phalcon CLI and Micro application. You can override the
 ## Installation
 
 ```bash
-composer --repository '{"type": "vcs", "url": "https://github.com/dzooli/phalcon-appfactory"}' require -o -vv dzooli/phalcon-appfactory:dev-master
+composer config repositories.phalcon-appfactory vcs https://github.com/dzooli/phalcon-appfactory.git
+composer require -o -vv dzooli/phalcon-appfactory:dev-master
 ```
 
 ## Usage

@@ -2,7 +2,7 @@
 
 ## Description
 
-Application skeleton for Phalcon CLI and Micro application. You can override the service and DI (and routes) configuration and just use your simple preconfigured application.
+Application skeleton for Phalcon CLI and Micro and API application. You can override the service and DI (and routes) configuration and just use your simple preconfigured application.
 
 ## Installation
 

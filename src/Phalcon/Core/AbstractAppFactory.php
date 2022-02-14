@@ -9,6 +9,11 @@ use Phalcon\Di\FactoryDefault;
 use Phalcon\Mvc\View\Simple as View;
 use Phalcon\Url as UrlResolver;
 
+use Phalcon\Config\Exception as ConfigException;
+
+/**
+ * Base class for the application factories.
+ */
 abstract class AbstractAppFactory
 {
     protected ?string $appPath = null;
@@ -92,10 +97,7 @@ abstract class AbstractAppFactory
             if ($config->database->adapter == 'Postgresql') {
                 unset($params['charset']);
             }
-
-            $connection = new $class($params);
-
-            return $connection;
+            return new $class($params); // The connection
         });
     }
 
@@ -104,17 +106,38 @@ abstract class AbstractAppFactory
         $this->di = new FactoryDefault();
     }
 
+    /**
+     * Initializes the Phalcon autoloader.
+     *
+     * @return void
+     * @throws Phalcon\Config\Exception
+     */
     protected function initLoader(): void
     {
-        $this->loader = new Loader();
-
-        $this->loader->registerDirs(
-            [
-                $this->appConfig->application->modelsDir,
-                $this->appConfig->application->controllersDir,
-                $this->appConfig->application->viewsDir,
-                $this->appConfig->application->libDir,
-            ]
-        )->register();
+        if (!$this->appConfig) {
+            throw new ConfigException("Configuration not found!");
+        }
+        $configArray = $this->appConfig->toArray();
+        if (!array_key_exists('application', $configArray)) {
+            throw new ConfigException("Application configuration not found!", 1);
+        }
+        if (
+            array_key_exists('modelsDir', $configArray)
+            && array_key_exists('controllersDir', $configArray)
+            && array_key_exists('viewsDir', $configArray)
+            && array_key_exists('libDir', $configArray)
+        ) {
+            $this->loader = new Loader();
+            $this->loader->registerDirs(
+                [
+                    $this->appConfig->application->modelsDir,
+                    $this->appConfig->application->controllersDir,
+                    $this->appConfig->application->viewsDir,
+                    $this->appConfig->application->libDir ?? $this->appConfig->application->controllersDir,
+                ]
+            )->register();
+            return;
+        }
+        throw new ConfigException("Application configuration is incomplete! Has to have modelsDir, controllersDir, viewsDir and libDir", 1);
     }
 }

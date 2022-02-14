@@ -118,14 +118,15 @@ abstract class AbstractAppFactory
             throw new ConfigException("Configuration not found!");
         }
         $configArray = $this->appConfig->toArray();
-        if (!array_key_exists('application', $configArray)) {
+        if (!$this->appConfig->get('application')) {
             throw new ConfigException("Application configuration not found!", 1);
         }
+        $appConfigArray = $configArray['application'];
         if (
-            array_key_exists('modelsDir', $configArray)
-            && array_key_exists('controllersDir', $configArray)
-            && array_key_exists('viewsDir', $configArray)
-            && array_key_exists('libDir', $configArray)
+            array_key_exists('modelsDir', $appConfigArray)
+            && array_key_exists('controllersDir', $appConfigArray)
+            && array_key_exists('viewsDir', $appConfigArray)
+            && array_key_exists('libDir', $appConfigArray)
         ) {
             $this->loader = new Loader();
             $this->loader->registerDirs(

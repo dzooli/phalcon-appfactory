@@ -145,7 +145,7 @@ abstract class AbstractAppFactory
                 $this->appConfig->application->viewsDir
             ];
             if (array_key_exists('libDir', $appConfigArray)) {
-                $dirs += $this->appConfig->application->libDir;
+                $dirs[] = $this->appConfig->application->libDir;
             }
             $this->loader->registerDirs($dirs)->register();
             return;

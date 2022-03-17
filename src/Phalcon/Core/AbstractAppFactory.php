@@ -107,7 +107,14 @@ abstract class AbstractAppFactory
     }
 
     /**
-     * Initializes the Phalcon autoloader.
+     * Initializes the Phalcon autoloader from config.php's 'application' array.
+     * 
+     * Must have directories:
+     *   - modelsDir
+     *   - controllersDir
+     *   - viewsDir
+     * Optional:
+     *   - libDir 
      *
      * @return void
      * @throws Phalcon\Config\Exception
@@ -126,19 +133,19 @@ abstract class AbstractAppFactory
             array_key_exists('modelsDir', $appConfigArray)
             && array_key_exists('controllersDir', $appConfigArray)
             && array_key_exists('viewsDir', $appConfigArray)
-            && array_key_exists('libDir', $appConfigArray)
         ) {
             $this->loader = new Loader();
-            $this->loader->registerDirs(
-                [
-                    $this->appConfig->application->modelsDir,
-                    $this->appConfig->application->controllersDir,
-                    $this->appConfig->application->viewsDir,
-                    $this->appConfig->application->libDir ?? $this->appConfig->application->controllersDir,
-                ]
-            )->register();
+            $dirs = [
+                $this->appConfig->application->modelsDir,
+                $this->appConfig->application->controllersDir,
+                $this->appConfig->application->viewsDir
+            ];
+            if (array_key_exists('libDir', $appConfigArray)) {
+                $dirs += $this->appConfig->application->libDir;
+            }
+            $this->loader->registerDirs($dirs)->register();
             return;
         }
-        throw new ConfigException("Application configuration is incomplete! Has to have modelsDir, controllersDir, viewsDir and libDir", 1);
+        throw new ConfigException("Application configuration is incomplete! Has to have modelsDir, controllersDir, viewsDir and optionally a libDir", 1);
     }
 }

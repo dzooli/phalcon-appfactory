@@ -6,8 +6,6 @@ use Phalcon\Config;
 use Phalcon\Di\Di;
 use Phalcon\Loader;
 use Phalcon\Di\FactoryDefault;
-use Phalcon\Mvc\View\Simple as View;
-use Phalcon\Url as UrlResolver;
 
 use Phalcon\Config\Exception as ConfigException;
 
@@ -47,6 +45,11 @@ abstract class AbstractAppFactory
         return $this->app;
     }
 
+    /**
+     * Initialize the Di, common services, configuration from the defined service and the autoloader.
+     *
+     * @return void
+     */
     public function initDefaults()
     {
         $this->initDi();
@@ -59,28 +62,24 @@ abstract class AbstractAppFactory
     {
         $this->appConfig = $this->di->getShared('config');
     }
+
+    /**
+     * Initialize the base services
+     * 
+     * - Configuration
+     * - DB adapter
+     *
+     * @return void
+     */
     protected function initBaseServices(): void
     {
         $factory = $this;
-        $this->di->setShared('config', function () use ($factory) {
-            return require $factory->appPath . "/config/config.php";
-        });
-
-        $this->di->setShared('view', function () {
-            $config = $this->getConfig();
-
-            $view = new View();
-            $view->setViewsDir($config->application->viewsDir);
-            return $view;
-        });
-
-        $this->di->setShared('url', function () {
-            $config = $this->getConfig();
-
-            $url = new UrlResolver();
-            $url->setBaseUri($config->application->baseUri);
-            return $url;
-        });
+        $configFile = $factory->appPath . "/config/config.php";
+        if (is_readable($configFile)) {
+            $this->di->setShared('config', function () use ($configFile) {
+                return require $configFile;
+            });
+        }
 
         $this->di->setShared('db', function () {
             $config = $this->getConfig();
@@ -101,6 +100,11 @@ abstract class AbstractAppFactory
         });
     }
 
+    /**
+     * Initialize the default dependency injector.
+     *
+     * @return void
+     */
     protected function initDi(): void
     {
         $this->di = new FactoryDefault();

@@ -1,5 +1,12 @@
 # Application factories for the Phalcon framework
 
+## Sonarcube analisys
+
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=dzooli_phalcon-appfactory&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=dzooli_phalcon-appfactory)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=dzooli_phalcon-appfactory&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=dzooli_phalcon-appfactory)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=dzooli_phalcon-appfactory&metric=bugs)](https://sonarcloud.io/summary/new_code?id=dzooli_phalcon-appfactory)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=dzooli_phalcon-appfactory&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=dzooli_phalcon-appfactory)
+
 ## Description
 
 Application skeleton for Phalcon CLI and Micro and API application. You can override the service and DI (and routes) configuration and just use your simple preconfigured application.
